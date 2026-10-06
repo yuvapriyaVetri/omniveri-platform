@@ -1,0 +1,95 @@
+/* Custom styling for Smart University Certificate Platform */
+
+@import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700;800&family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,600;0,700;1,400&display=swap');
+
+:root {
+  --uni-navy: #0f2b48;
+  --uni-gold: #c59b27;
+  --uni-gold-light: #fef8e7;
+  --uni-dark: #0a1c2e;
+}
+
+body {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  background-color: #f8fafc;
+  color: #1e293b;
+}
+
+.font-serif-title {
+  font-family: 'Cinzel', serif;
+}
+
+.font-diploma {
+  font-family: 'Playfair Display', serif;
+}
+
+/* Certificate Paper Texture & Guilloche Frame */
+.certificate-frame {
+  background: #ffffff;
+  border: 14px solid #0f2b48;
+  outline: 4px solid #c59b27;
+  outline-offset: -10px;
+  position: relative;
+  box-shadow: 0 20px 45px -10px rgba(15, 43, 72, 0.25);
+}
+
+.certificate-watermark {
+  background-image: radial-gradient(circle, rgba(197, 155, 39, 0.04) 10%, transparent 10%);
+  background-size: 20px 20px;
+}
+
+/* Gold Seal Emblem */
+.gold-seal {
+  background: radial-gradient(circle, #e6c564 0%, #c59b27 70%, #997412 100%);
+  box-shadow: 0 4px 12px rgba(197, 155, 39, 0.4);
+  border: 2px dashed #ffffff;
+}
+
+/* Pulse animation for live scanner */
+@keyframes scannerLaser {
+  0% { top: 0%; opacity: 0.8; }
+  50% { top: 96%; opacity: 1; }
+  100% { top: 0%; opacity: 0.8; }
+}
+
+.scanner-laser {
+  animation: scannerLaser 2.2s ease-in-out infinite;
+}
+
+/* Print Styles: Strict Certificate Document Layout */
+@media print {
+  body * {
+    visibility: hidden;
+  }
+  .print-area, .print-area * {
+    visibility: visible;
+  }
+  .print-area {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100% !important;
+    margin: 0 !important;
+    padding: 20px !important;
+    box-shadow: none !important;
+  }
+  .no-print {
+    display: none !important;
+  }
+}
+
+/* Smooth view transitions */
+.view-container {
+  animation: fadeIn 0.25s ease-out forwards;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

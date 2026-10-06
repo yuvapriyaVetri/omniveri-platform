@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>OmniVeri - Company Background Verification Hub</title>
+  
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              50: '#f0f5fa',
+              100: '#e1ecf5',
+              600: '#1b4d7a',
+              700: '#133a5d',
+              800: '#0f2b48',
+              900: '#0a1c2e',
+            },
+            gold: {
+              400: '#e5c058',
+              500: '#c59b27',
+              600: '#a37e1b',
+            }
+          }
+        }
+      }
+    }
+  </script>
+
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <!-- Canvas Confetti -->
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
+
+  <!-- jsQR for in-browser QR decoding -->
+  <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.js"></script>
+
+  <!-- Custom CSS -->
+  <link rel="stylesheet" href="/static/css/custom.css">
+</head>
+<body class="bg-slate-50 text-slate-800 min-h-screen flex flex-col antialiased">
+
+  <!-- ========================================== -->
+  <!-- NAVIGATION BAR (no-print)                  -->
+  <!-- ========================================== -->
+  <header class="bg-brand-800 text-white shadow-md sticky top-0 z-40 no-print border-b border-brand-700">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+      
+      <!-- Brand Logo & Platform Title -->
+      <a href="/" onclick="event.preventDefault(); App.navigate('dashboard');" class="flex items-center gap-3 group">
+        <div class="w-10 h-10 rounded-lg bg-gradient-to-tr from-gold-500 to-gold-400 text-brand-900 flex items-center justify-center font-bold text-xl shadow-md group-hover:scale-105 transition-transform">
+          <i data-lucide="shield-check" class="w-6 h-6 text-brand-900"></i>
+        </div>
+        <div>
+          <div class="font-serif-title font-bold text-base md:text-lg tracking-wide leading-tight flex items-center gap-2">
+            OmniVeri <span class="bg-gold-500/20 text-gold-400 text-[10px] px-2 py-0.5 rounded-full font-sans font-bold border border-gold-400/30">BGV HUB</span>
+          </div>
+          <div class="text-[11px] text-slate-300 tracking-wider font-medium" id="nav-company-subtitle">Company Background Screening Portal</div>
+        </div>
+      </a>
+
+      <!-- Navigation Links -->
+      <nav id="nav-center-links" class="hidden md:flex items-center gap-2 text-sm font-medium">
+        <!-- Rendered based on company login -->
+      </nav>
+
+      <!-- Company Profile & Quick Auth Container -->
+      <div id="nav-company-auth" class="flex items-center gap-3">
+        <!-- Injected by JS -->
+      </div>
+    </div>
+  </header>
+
+  <!-- ========================================== -->
+  <!-- MAIN WORKSPACE CONTAINER                   -->
+  <!-- ========================================== -->
+  <main class="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6 lg:p-8">
+    <div id="view-mount-point" class="view-container">
+      <!-- Active view mounted here dynamically -->
+    </div>
+  </main>
+
+  <!-- ========================================== -->
+  <!-- FOOTER (no-print)                          -->
+  <!-- ========================================== -->
+  <footer class="bg-white border-t border-slate-200 mt-auto py-6 text-xs text-slate-500 no-print">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row items-center justify-between gap-4">
+      <div class="flex items-center gap-2">
+        <i data-lucide="shield-check" class="w-4 h-4 text-brand-700"></i>
+        <span><strong>OmniVeri BGV Hub</strong> • Enterprise Screening Integration with Universal University Clearinghouse</span>
+      </div>
+      <div class="flex items-center gap-4 text-[11px]">
+        <span>Multi-Tenant Company Portals</span>
+        <span>•</span>
+        <span>SHA-256 Tamper Detection</span>
+        <span>•</span>
+        <button onclick="App.resetCurrentCompanyDemo()" class="text-brand-600 hover:underline font-semibold flex items-center gap-1">
+          <i data-lucide="rotate-ccw" class="w-3.5 h-3.5"></i> Reset Demo Candidates
+        </button>
+      </div>
+    </div>
+  </footer>
+
+  <!-- ========================================== -->
+  <!-- MODAL: UPLOAD & VERIFY WITH UNIVERSAL HUB  -->
+  <!-- ========================================== -->
+  <div id="modal-hub-verify" class="fixed inset-0 bg-slate-900/75 backdrop-blur-sm z-50 hidden flex items-center justify-center p-3 sm:p-6 overflow-y-auto">
+    <div class="bg-white rounded-3xl max-w-5xl w-full shadow-2xl overflow-hidden border border-slate-200 my-auto flex flex-col max-h-[92vh]">
+      
+      <!-- Modal Header -->
+      <div class="bg-brand-800 text-white p-5 flex items-center justify-between border-b border-brand-700 shrink-0">
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-xl bg-gold-500/20 text-gold-400 flex items-center justify-center border border-gold-400/30">
+            <i data-lucide="cloud-lightning" class="w-6 h-6"></i>
+          </div>
+          <div>
+            <h3 class="font-bold text-base md:text-lg flex items-center gap-2">
+              Upload Certificate to Universal Verification Hub
+              <span id="hub-modal-prof-id" class="font-mono text-xs bg-brand-900 px-2.5 py-0.5 rounded-full text-gold-400 border border-brand-700">CAND-001</span>
+            </h3>
+            <p class="text-xs text-slate-300">Checking candidate's submitted document against the global university registry</p>
+          </div>
+        </div>
+        <button onclick="App.closeHubModal()" class="text-slate-300 hover:text-white p-2 rounded-xl hover:bg-brand-700 transition">
+          <i data-lucide="x" class="w-6 h-6"></i>
+        </button>
+      </div>
+
+      <!-- Modal Body (Two-Column Layout) -->
+      <div class="p-6 overflow-y-auto flex-1 grid grid-cols-1 lg:grid-cols-12 gap-6 bg-slate-50">
+        
+        <!-- Left Column: Candidate & Submitted Document (5 cols) -->
+        <div class="lg:col-span-5 space-y-4">
+          <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-3">
+            <div class="flex items-center justify-between">
+              <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400">Candidate Submission</span>
+              <span id="hub-modal-status-badge" class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-amber-100 text-amber-800">PENDING</span>
+            </div>
+
+            <div>
+              <h4 id="hub-modal-name" class="text-lg font-bold text-slate-900">Ethan Vance</h4>
+              <p id="hub-modal-email" class="text-xs text-slate-500 font-mono">e.vance@techmail.org</p>
+            </div>
+
+            <div class="pt-3 border-t border-slate-100 text-xs space-y-2">
+              <div class="flex justify-between">
+                <span class="text-slate-400">Target Role:</span>
+                <span id="hub-modal-role" class="font-semibold text-slate-800">Senior Cloud Architect</span>
+              </div>
+              <div class="flex justify-between">
+                <span class="text-slate-400">Claimed University:</span>
+                <span id="hub-modal-university" class="font-semibold text-brand-800">MIT</span>
+              </div>
+              <div class="flex justify-between">
+                <span class="text-slate-400">Claimed Degree:</span>
+                <span id="hub-modal-degree" class="font-semibold text-slate-800 text-right max-w-[200px]">M.S. in Computer Science</span>
+              </div>
+              <div class="flex justify-between">
+                <span class="text-slate-400">Certificate ID:</span>
+                <span id="hub-modal-cert-id" class="font-mono font-bold text-brand-800">CERT-MIT-88412</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Document Preview -->
+          <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm space-y-2">
+            <div class="flex items-center justify-between text-xs">
+              <span class="font-bold text-slate-700 flex items-center gap-1.5">
+                <i data-lucide="file-text" class="w-4 h-4 text-brand-700"></i> Submitted Diploma File
+              </span>
+              <a id="hub-modal-download-cert" href="#" download class="text-[11px] font-semibold text-brand-600 hover:underline flex items-center gap-1">
+                <i data-lucide="download" class="w-3.5 h-3.5"></i> Download PNG
+              </a>
+            </div>
+
+            <div class="rounded-xl overflow-hidden border border-slate-200 bg-slate-100 cursor-pointer" onclick="App.executeQuickHubVerify()">
+              <img id="hub-modal-preview-img" src="" alt="Submitted Certificate" class="w-full object-contain max-h-52">
+            </div>
+            <p class="text-[10px] text-slate-400 text-center">Contains embedded scannable QR gateway</p>
+          </div>
+        </div>
+
+        <!-- Right Column: Verification Action & Universal Hub Verdict (7 cols) -->
+        <div class="lg:col-span-7 space-y-4">
+          <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-4">
+            <h4 class="text-sm font-bold text-slate-900 flex items-center gap-2">
+              <i data-lucide="scan" class="w-4 h-4 text-brand-700"></i> Universal Hub Screening Station
+            </h4>
+
+            <!-- Verification Method Buttons -->
+            <div class="grid grid-cols-3 gap-2 text-xs font-semibold">
+              <button id="hub-btn-quick" onclick="App.setHubVerifyMethod('quick')" class="p-2.5 rounded-xl border border-brand-800 bg-brand-50 text-brand-900 flex flex-col items-center gap-1 transition">
+                <i data-lucide="zap" class="w-4 h-4 text-gold-500"></i> 1-Click Hub Scan
+              </button>
+              <button id="hub-btn-upload" onclick="App.setHubVerifyMethod('upload')" class="p-2.5 rounded-xl border border-slate-200 hover:border-slate-300 text-slate-700 flex flex-col items-center gap-1 transition">
+                <i data-lucide="upload" class="w-4 h-4 text-brand-700"></i> Upload Certificate File
+              </button>
+              <button id="hub-btn-camera" onclick="App.setHubVerifyMethod('camera')" class="p-2.5 rounded-xl border border-slate-200 hover:border-slate-300 text-slate-700 flex flex-col items-center gap-1 transition">
+                <i data-lucide="camera" class="w-4 h-4 text-emerald-600"></i> Webcam QR Scan
+              </button>
+            </div>
+
+            <!-- Drag and drop image upload container -->
+            <div id="hub-pane-upload" class="hidden p-6 border-2 border-dashed border-slate-300 hover:border-brand-600 rounded-2xl text-center cursor-pointer bg-slate-50 hover:bg-slate-100 transition" onclick="document.getElementById('hub-file-input').click()">
+              <i data-lucide="file-up" class="w-8 h-8 text-brand-700 mx-auto mb-2"></i>
+              <p class="text-xs font-bold text-slate-800">Select or drop candidate certificate PNG/JPG file</p>
+              <p class="text-[11px] text-slate-400 mt-0.5">The Universal Hub will decode the QR code and query the university register</p>
+              <input type="file" id="hub-file-input" accept="image/*" class="hidden" onchange="App.handleHubFileSelect(event)">
+            </div>
+
+            <!-- Webcam Pane -->
+            <div id="hub-pane-camera" class="hidden relative aspect-video bg-black rounded-2xl overflow-hidden flex items-center justify-center">
+              <video id="hub-camera-video" class="w-full h-full object-cover"></video>
+              <canvas id="hub-camera-canvas" class="hidden"></canvas>
+              <div class="absolute inset-8 border-2 border-gold-400/80 rounded-xl pointer-events-none flex items-center justify-center">
+                <div class="absolute w-full h-0.5 bg-red-500 shadow-[0_0_8px_#ef4444] scanner-laser"></div>
+              </div>
+            </div>
+
+            <!-- Quick 1-Click Action Pane -->
+            <div id="hub-pane-quick" class="p-4 bg-brand-50/70 border border-brand-100 rounded-xl flex items-center justify-between gap-4">
+              <div class="text-xs text-brand-900">
+                <p class="font-bold">Connect to Universal Clearinghouse</p>
+                <p class="text-[11px] text-brand-700">Submits certificate ID & QR to verify cryptographic signature and university accreditation.</p>
+              </div>
+              <button onclick="App.executeQuickHubVerify()" class="px-5 py-2.5 bg-brand-800 hover:bg-brand-900 text-white rounded-xl text-xs font-bold transition shadow-md shrink-0 flex items-center gap-1.5">
+                <i data-lucide="send" class="w-4 h-4 text-gold-400"></i> Submit to Hub Now
+              </button>
+            </div>
+          </div>
+
+          <!-- VERDICT RESULT CARD -->
+          <div id="hub-verdict-card" class="hidden bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-4 animate-in fade-in duration-200">
+            <!-- Rendered by JS -->
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========================================== -->
+  <!-- MODAL: ADD CANDIDATE PROFILE               -->
+  <!-- ========================================== -->
+  <div id="modal-add-candidate" class="fixed inset-0 bg-slate-900/75 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-white rounded-3xl max-w-lg w-full shadow-2xl overflow-hidden border border-slate-200">
+      <div class="bg-brand-800 text-white p-5 flex items-center justify-between">
+        <div class="flex items-center gap-2">
+          <i data-lucide="user-plus" class="w-5 h-5 text-gold-400"></i>
+          <h3 class="font-bold text-base">Onboard Candidate for Background Verification</h3>
+        </div>
+        <button onclick="App.closeAddCandidateModal()" class="text-slate-300 hover:text-white p-1 rounded-lg hover:bg-brand-700">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <form id="add-candidate-form" onsubmit="event.preventDefault(); App.submitNewCandidate();" class="p-6 space-y-4 text-xs">
+        <div>
+          <label class="block font-semibold text-slate-700 mb-1">Candidate Full Name *</label>
+          <input type="text" id="cand-name" required placeholder="e.g. John Doe" class="w-full text-xs px-3.5 py-2.5 border border-slate-300 rounded-xl focus:ring-2 focus:ring-brand-700">
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block font-semibold text-slate-700 mb-1">Email Address *</label>
+            <input type="email" id="cand-email" required placeholder="john.doe@email.com" class="w-full text-xs px-3.5 py-2.5 border border-slate-300 rounded-xl focus:ring-2 focus:ring-brand-700">
+          </div>
+          <div>
+            <label class="block font-semibold text-slate-700 mb-1">Phone Number</label>
+            <input type="text" id="cand-phone" placeholder="+91 98450 12345" class="w-full text-xs px-3.5 py-2.5 border border-slate-300 rounded-xl focus:ring-2 focus:ring-brand-700">
+          </div>
+        </div>
+
+        <div>
+          <label class="block font-semibold text-slate-700 mb-1">Position / Role Applied For *</label>
+          <input type="text" id="cand-role" required placeholder="e.g. Senior Software Engineer" class="w-full text-xs px-3.5 py-2.5 border border-slate-300 rounded-xl focus:ring-2 focus:ring-brand-700">
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block font-semibold text-slate-700 mb-1">Claimed University *</label>
+            <select id="cand-uni" required class="w-full text-xs px-3 py-2.5 border border-slate-300 rounded-xl focus:ring-2 focus:ring-brand-700 bg-white">
+              <option value="Massachusetts Institute of Technology">Massachusetts Institute of Technology</option>
+              <option value="Stanford University">Stanford University</option>
+              <option value="University of Oxford">University of Oxford</option>
+              <option value="University of Cambridge">University of Cambridge</option>
+              <option value="National University of Singapore">National University of Singapore</option>
+              <option value="Harvard University">Harvard University</option>
+              <option value="Apex Global University">Apex Global University</option>
+            </select>
+          </div>
+          <div>
+            <label class="block font-semibold text-slate-700 mb-1">Certificate ID *</label>
+            <input type="text" id="cand-cert-id" required placeholder="e.g. CERT-MIT-88412" class="w-full text-xs px-3.5 py-2.5 border border-slate-300 rounded-xl font-mono focus:ring-2 focus:ring-brand-700">
+          </div>
+        </div>
+
+        <div>
+          <label class="block font-semibold text-slate-700 mb-1">Claimed Degree / Program *</label>
+          <input type="text" id="cand-degree" required placeholder="e.g. Bachelor of Technology in Computer Science" class="w-full text-xs px-3.5 py-2.5 border border-slate-300 rounded-xl focus:ring-2 focus:ring-brand-700">
+        </div>
+
+        <div class="flex items-center justify-end gap-3 pt-4 border-t border-slate-100">
+          <button type="button" onclick="App.closeAddCandidateModal()" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl font-semibold">
+            Cancel
+          </button>
+          <button type="submit" class="px-5 py-2 bg-brand-800 hover:bg-brand-900 text-white rounded-xl font-bold transition shadow-md flex items-center gap-1.5">
+            <i data-lucide="plus" class="w-4 h-4"></i> Add to Pending Queue
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Application scripts -->
+  <script src="/static/js/scanner.js"></script>
+  <script src="/static/js/certificate.js"></script>
+  <script src="/static/js/app.js"></script>
+</body>
+</html>
